@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/wt-tools/avionics-panel/config"
-	"github.com/wt-tools/avionics-panel/input/state"
-	"github.com/wt-tools/avionics-panel/net/poll"
+	"github.com/wt-tools/wtscope/input/state"
+	"github.com/wt-tools/wtscope/net/poll"
 
 	"github.com/grafov/kiwi"
 )

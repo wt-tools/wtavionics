@@ -1,2 +1,4 @@
 github.com/grafov/kiwi v0.5.2 h1:alVAMmclxOdORkML2CR2r2cZH/9+45vVFvz+q/FY+6o=
 github.com/grafov/kiwi v0.5.2/go.mod h1:NCn5wioz1NKaOnLZJTAj6WfsuRARVRok9MrTO4J9sJA=
+github.com/wt-tools/wtscope v0.0.0-20230423172030-0e855d03fd10 h1:mGeBGxuW6x70w9EyRucUyckrWEJgZ4AtCvG0KoVbHWo=
+github.com/wt-tools/wtscope v0.0.0-20230423172030-0e855d03fd10/go.mod h1:vFf0oam8ZDKAKAQsuf6KQSK7uogH0i2elJVH+Nyp9vg=
