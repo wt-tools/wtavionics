@@ -1,7 +1,7 @@
 # Optionally set these args as environment vars in the shell. You
 # could also pass them as parameters of `make`.
 # For example: make build CMD=console
-CMD?=avionics-panel
+CMD?=wtavionics
 FLAGS?=-v
 CLEANUP?=
 
