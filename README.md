@@ -8,10 +8,10 @@ be used together with the official game client for getting better game
 expirience. It uses data that exposed through HTTP by official client.
 
 The utility offers no any game changing modes nor any cheats for game
-process. The purpose is make game process is more atmospheric and deep
-especially in simulator battles.
+process. The purpose of the utility is making game process more
+atmospheric and deep especially in simulator battles.
 
-*Linux support only.*
+*Linux support only yet.*
 
 # License
 

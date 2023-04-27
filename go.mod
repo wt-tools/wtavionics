@@ -3,18 +3,19 @@ module github.com/wt-tools/wtavionics
 go 1.20
 
 require (
-	gioui.org v0.0.0-20230421192146-880cd27f59ca
+	gioui.org v0.0.0-20230427133431-816bda7ac7bd
 	github.com/grafov/kiwi v0.5.2
-	github.com/wt-tools/wtscope v0.0.0-20230424222026-657410514883
+	github.com/wt-tools/wtscope v0.0.0-20230427191353-fa84acf008dd
 )
 
 require (
-	gioui.org/cpu v0.0.0-20210817075930-8d6a761490d2 // indirect
+	gioui.org/cpu v0.0.0-20220412190645-f1e9e8c3b1f7 // indirect
 	gioui.org/shader v1.0.6 // indirect
-	github.com/go-text/typesetting v0.0.0-20230413204129-b4f0492bf7ae // indirect
-	golang.org/x/exp v0.0.0-20221012211006-4de253d81b95 // indirect
-	golang.org/x/exp/shiny v0.0.0-20220827204233-334a2380cb91 // indirect
-	golang.org/x/image v0.5.0 // indirect
-	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	github.com/go-text/typesetting v0.0.0-20230426173932-9a68ecbfeb56 // indirect
+	github.com/valyala/fastjson v1.6.4 // indirect
+	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53 // indirect
+	golang.org/x/exp/shiny v0.0.0-20230425010034-47ecfdc1ba53 // indirect
+	golang.org/x/image v0.7.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
 )

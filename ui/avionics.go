@@ -20,40 +20,50 @@ import (
 
 type avionicsDisplays struct {
 	// Updatable elements:
-	speed        material.LabelStyle
+	//	displays map[string]  material.LabelStyle
+	ias          material.LabelStyle
 	altH         material.LabelStyle
 	oilTemp      material.LabelStyle
 	headTemp     material.LabelStyle
+	waterTemp    material.LabelStyle
 	fuel         material.LabelStyle
 	flaps        material.LabelStyle
+	throttle     material.LabelStyle
 	craft        material.ButtonStyle
 	btnClickArea widget.Clickable
 }
 
+const precision = 2 // numbers after comma for floating values
 func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *indicators.Service) {
 	l := g.log.New()
-	g.speed = material.Label(g.th, unit.Sp(50), "0")
+	//	g.displays = make(map[string]material.LabelStyle)
+	g.ias = material.Label(g.th, unit.Sp(300), "0")
 	g.altH = material.Label(g.th, unit.Sp(50), "0")
-	g.oilTemp = material.Label(g.th, unit.Sp(50), "0")
-	g.headTemp = material.Label(g.th, unit.Sp(50), "0")
+	g.oilTemp = material.Label(g.th, unit.Sp(70), "0")
+	g.headTemp = material.Label(g.th, unit.Sp(70), "0")
+	g.waterTemp = material.Label(g.th, unit.Sp(70), "0")
 	g.fuel = material.Label(g.th, unit.Sp(50), "0")
 	g.flaps = material.Label(g.th, unit.Sp(50), "off")
+	g.throttle = material.Label(g.th, unit.Sp(50), "0")
 	g.craft = material.Button(g.th, &g.btnClickArea, "aircraft")
 	go func() {
 		for {
 			select {
 			case data := <-states.Messages:
+				g.ias.Text = strconv.Itoa(data.GetInt(state.IASKmH))
+				g.throttle.Text = strconv.Itoa(data.GetInt(state.Throttle1))
+				g.w.Invalidate()
 				l.Log("state", data)
 			case data := <-inds.Messages:
-				g.speed.Text = strconv.FormatFloat(data.Speed, 'f', 3, 64)
-				g.altH.Text = strconv.FormatFloat(data.AltitudeHour, 'f', 3, 64)
-				g.oilTemp.Text = strconv.FormatFloat(data.OilTemperature, 'f', 3, 64)
-				g.headTemp.Text = strconv.FormatFloat(data.HeadTemperature, 'f', 3, 64)
-				g.fuel.Text = strconv.FormatFloat(data.Fuel, 'f', 3, 64)
-				g.flaps.Text = strconv.FormatFloat(data.Flaps, 'f', 3, 64)
+				g.altH.Text = strconv.FormatFloat(data.AltitudeHour, 'f', precision, 64)
+				g.oilTemp.Text = strconv.FormatFloat(data.OilTemperature, 'f', precision, 64)
+				g.headTemp.Text = strconv.FormatFloat(data.HeadTemperature, 'f', precision, 64)
+				g.waterTemp.Text = strconv.FormatFloat(data.WaterTemperature, 'f', precision, 64)
+				g.fuel.Text = strconv.FormatFloat(data.Fuel, 'f', precision, 64)
+				g.flaps.Text = strconv.FormatFloat(data.Flaps, 'f', precision, 64)
 				g.craft.Text = data.Type
 				g.w.Invalidate()
-				l.Log("indicator", data)
+				// l.Log("indicator", data)
 			}
 		}
 	}()
@@ -86,7 +96,7 @@ func (g *gui) avionicsPanel() error {
 			for _, event := range gtx.Events(g.w) {
 				switch event := event.(type) {
 				case key.Event:
-					l.Log("event", "key pressed")
+					l.Log("exit", "by escape")
 					if event.Name == key.NameEscape {
 						return nil
 					}
@@ -101,14 +111,14 @@ func (g *gui) avionicsPanel() error {
 				),
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
-						lbl := material.Label(g.th, unit.Sp(30), "speed")
+						lbl := material.Label(g.th, unit.Sp(30), state.IASKmH)
 						lbl.Alignment = text.Middle
 						return lbl.Layout(gtx)
 					}),
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
-						g.speed.Alignment = text.Middle
-						return g.speed.Layout(gtx)
+						g.ias.Alignment = text.Middle
+						return g.ias.Layout(gtx)
 					},
 				),
 				layout.Rigid(
@@ -137,6 +147,18 @@ func (g *gui) avionicsPanel() error {
 				),
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
+						lbl := material.Label(g.th, unit.Sp(30), "water temperature")
+						lbl.Alignment = text.Middle
+						return lbl.Layout(gtx)
+					}),
+				layout.Rigid(
+					func(gtx layout.Context) layout.Dimensions {
+						g.waterTemp.Alignment = text.Middle
+						return g.waterTemp.Layout(gtx)
+					},
+				),
+				layout.Rigid(
+					func(gtx layout.Context) layout.Dimensions {
 						lbl := material.Label(g.th, unit.Sp(30), "head temperature")
 						lbl.Alignment = text.Middle
 						return lbl.Layout(gtx)
@@ -161,6 +183,18 @@ func (g *gui) avionicsPanel() error {
 				),
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
+						lbl := material.Label(g.th, unit.Sp(30), "throttle")
+						lbl.Alignment = text.Middle
+						return lbl.Layout(gtx)
+					}),
+				layout.Rigid(
+					func(gtx layout.Context) layout.Dimensions {
+						g.throttle.Alignment = text.Middle
+						return g.throttle.Layout(gtx)
+					},
+				),
+				layout.Rigid(
+					func(gtx layout.Context) layout.Dimensions {
 						lbl := material.Label(g.th, unit.Sp(30), "flaps")
 						lbl.Alignment = text.Middle
 						return lbl.Layout(gtx)
@@ -171,6 +205,7 @@ func (g *gui) avionicsPanel() error {
 						return g.flaps.Layout(gtx)
 					},
 				),
+
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
 						return rows.Layout(gtx, btn1, btn2)
@@ -187,3 +222,23 @@ func (g *gui) avionicsPanel() error {
 
 	return nil
 }
+
+// func (g *gui) basicIndicators(names ...string) []layout.FlexChild {
+//	var children []layout.FlexChild
+//	for _, name := range names {
+//		children = append(children,
+//			layout.Rigid(
+//				func(gtx layout.Context) layout.Dimensions {
+//					lbl := material.Label(g.th, unit.Sp(30), name)
+//					lbl.Alignment = text.Middle
+//					return lbl.Layout(gtx)
+//				}),
+//			layout.Rigid(
+//				func(gtx layout.Context) layout.Dimensions {
+//					g.ias.Alignment = text.Middle
+//					return g.ias.Layout(gtx)
+//				}),
+//		)
+//	}
+//	return children
+// }
