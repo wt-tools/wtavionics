@@ -23,7 +23,7 @@ func main() {
 	l.Log("status", "prepare avionics for start", "config", "xxx")
 	errch := make(chan error, 8) // XXX разделить по компонентам
 	go showErrors(l, errch)
-	defaultPolling := poll.New(http.DefaultClient, errch, 200*time.Millisecond, 3*time.Second)
+	defaultPolling := poll.New(http.DefaultClient, errch, 250*time.Millisecond, 4*time.Second)
 	stateSvc := state.New(conf, defaultPolling, errch)
 	indSvc := indicators.New(conf, defaultPolling, errch)
 	go defaultPolling.Do()

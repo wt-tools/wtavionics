@@ -33,7 +33,7 @@ type avionicsDisplays struct {
 	btnClickArea widget.Clickable
 }
 
-const precision = 2 // numbers after comma for floating values
+const precision = 1 // numbers after comma for floating values
 func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *indicators.Service) {
 	l := g.log.New()
 	//	g.displays = make(map[string]material.LabelStyle)
@@ -55,7 +55,7 @@ func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *i
 				g.w.Invalidate()
 				l.Log("state", data)
 			case data := <-inds.Messages:
-				g.altH.Text = strconv.FormatFloat(data.AltitudeHour, 'f', precision, 64)
+				g.altH.Text = strconv.FormatFloat(data.AltitudeHour, 'f', 0, 64) // избыточно выдавать доли метра для высоты
 				g.oilTemp.Text = strconv.FormatFloat(data.OilTemperature, 'f', precision, 64)
 				g.headTemp.Text = strconv.FormatFloat(data.HeadTemperature, 'f', precision, 64)
 				g.waterTemp.Text = strconv.FormatFloat(data.WaterTemperature, 'f', precision, 64)
