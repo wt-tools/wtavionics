@@ -56,8 +56,17 @@ func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *i
 				l.Log("state", data)
 			case data := <-inds.Messages:
 				g.altH.Text = strconv.FormatFloat(data.AltitudeHour, 'f', 0, 64) // избыточно выдавать доли метра для высоты
+				if data.OilTemperature < 0 {
+					data.OilTemperature = 0
+				}
 				g.oilTemp.Text = strconv.FormatFloat(data.OilTemperature, 'f', precision, 64)
+				if data.HeadTemperature < 0 {
+					data.HeadTemperature = 0
+				}
 				g.headTemp.Text = strconv.FormatFloat(data.HeadTemperature, 'f', precision, 64)
+				if data.WaterTemperature < 0 {
+					data.WaterTemperature = 0
+				}
 				g.waterTemp.Text = strconv.FormatFloat(data.WaterTemperature, 'f', precision, 64)
 				g.fuel.Text = strconv.FormatFloat(data.Fuel, 'f', precision, 64)
 				g.flaps.Text = strconv.FormatFloat(data.Flaps, 'f', precision, 64)
