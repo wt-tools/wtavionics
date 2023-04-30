@@ -50,12 +50,12 @@ func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *i
 		for {
 			select {
 			case data := <-states.Messages:
+				g.altH.Text = strconv.Itoa(data.GetInt(state.HM))
 				g.ias.Text = strconv.Itoa(data.GetInt(state.IASKmH))
 				g.throttle.Text = strconv.Itoa(data.GetInt(state.Throttle1))
 				g.w.Invalidate()
 				l.Log("state", data)
 			case data := <-inds.Messages:
-				g.altH.Text = strconv.FormatFloat(data.AltitudeHour, 'f', 0, 64) // избыточно выдавать доли метра для высоты
 				if data.OilTemperature < 0 {
 					data.OilTemperature = 0
 				}
