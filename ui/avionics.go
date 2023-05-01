@@ -10,7 +10,6 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
-	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -19,16 +18,14 @@ import (
 )
 
 type avionicsDisplays struct {
-	// Updatable elements:
-	//	displays map[string]  material.LabelStyle
-	ias          material.LabelStyle
-	altH         material.LabelStyle
-	oilTemp      material.LabelStyle
-	headTemp     material.LabelStyle
-	waterTemp    material.LabelStyle
-	fuel         material.LabelStyle
-	flaps        material.LabelStyle
-	throttle     material.LabelStyle
+	ias          *basicDisplay
+	altH         *basicDisplay
+	oilTemp      *basicDisplay
+	headTemp     *basicDisplay
+	waterTemp    *basicDisplay
+	fuel         *basicDisplay
+	flaps        *basicDisplay
+	throttle     *basicDisplay
 	craft        material.ButtonStyle
 	btnClickArea widget.Clickable
 }
@@ -36,43 +33,42 @@ type avionicsDisplays struct {
 const precision = 1 // numbers after comma for floating values
 func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *indicators.Service) {
 	l := g.log.New()
-	//	g.displays = make(map[string]material.LabelStyle)
-	g.ias = material.Label(g.th, unit.Sp(300), "0")
-	g.altH = material.Label(g.th, unit.Sp(50), "0")
-	g.oilTemp = material.Label(g.th, unit.Sp(70), "0")
-	g.headTemp = material.Label(g.th, unit.Sp(70), "0")
-	g.waterTemp = material.Label(g.th, unit.Sp(70), "0")
-	g.fuel = material.Label(g.th, unit.Sp(50), "0")
-	g.flaps = material.Label(g.th, unit.Sp(50), "off")
-	g.throttle = material.Label(g.th, unit.Sp(50), "0")
+	g.ias = newBasicDisplay(g.th, "speed", 300)
+	g.altH = newBasicDisplay(g.th, "altitude", 30)
+	g.oilTemp = newBasicDisplay(g.th, "oil temperature", 70)
+	g.waterTemp = newBasicDisplay(g.th, "water temperature", 70)
+	g.headTemp = newBasicDisplay(g.th, "head temperature", 70)
+	g.fuel = newBasicDisplay(g.th, "fuel", 50)
+	g.flaps = newBasicDisplay(g.th, "flaps", 50)
+	g.throttle = newBasicDisplay(g.th, "throttle", 50)
 	g.craft = material.Button(g.th, &g.btnClickArea, "aircraft")
 	go func() {
 		for {
 			select {
 			case data := <-states.Messages:
-				g.altH.Text = strconv.Itoa(data.GetInt(state.HM))
-				g.ias.Text = strconv.Itoa(data.GetInt(state.IASKmH))
-				g.throttle.Text = strconv.Itoa(data.GetInt(state.Throttle1))
+				g.altH.V = strconv.Itoa(data.GetInt(state.HM))
+				g.ias.V = strconv.Itoa(data.GetInt(state.IASKmH))
+				g.throttle.V = strconv.Itoa(data.GetInt(state.Throttle1))
 				g.w.Invalidate()
 				l.Log("state", data)
 			case data := <-inds.Messages:
 				if data.OilTemperature < 0 {
 					data.OilTemperature = 0
 				}
-				g.oilTemp.Text = strconv.FormatFloat(data.OilTemperature, 'f', precision, 64)
+				g.oilTemp.V = strconv.FormatFloat(data.OilTemperature, 'f', precision, 64)
 				if data.HeadTemperature < 0 {
 					data.HeadTemperature = 0
 				}
-				g.headTemp.Text = strconv.FormatFloat(data.HeadTemperature, 'f', precision, 64)
+				g.headTemp.V = strconv.FormatFloat(data.HeadTemperature, 'f', precision, 64)
 				if data.WaterTemperature < 0 {
 					data.WaterTemperature = 0
 				}
-				g.waterTemp.Text = strconv.FormatFloat(data.WaterTemperature, 'f', precision, 64)
-				g.fuel.Text = strconv.FormatFloat(data.Fuel, 'f', precision, 64)
-				g.flaps.Text = strconv.FormatFloat(data.Flaps, 'f', precision, 64)
+				g.waterTemp.V = strconv.FormatFloat(data.WaterTemperature, 'f', precision, 64)
+				g.fuel.V = strconv.FormatFloat(data.Fuel, 'f', precision, 64)
+				g.flaps.V = strconv.FormatFloat(data.Flaps, 'f', precision, 64)
 				g.craft.Text = data.Type
 				g.w.Invalidate()
-				// l.Log("indicator", data)
+				l.Log("indicator", data)
 			}
 		}
 	}()
@@ -116,105 +112,15 @@ func (g *gui) avionicsPanel() error {
 				Spacing: layout.SpaceEnd,
 			}.Layout(gtx,
 				layout.Rigid(
-					layout.Spacer{Height: unit.Dp(250)}.Layout,
+					layout.Spacer{Height: unit.Dp(25)}.Layout,
 				),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						lbl := material.Label(g.th, unit.Sp(30), state.IASKmH)
-						lbl.Alignment = text.Middle
-						return lbl.Layout(gtx)
-					}),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						g.ias.Alignment = text.Middle
-						return g.ias.Layout(gtx)
-					},
-				),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						lbl := material.Label(g.th, unit.Sp(30), "altitude")
-						lbl.Alignment = text.Middle
-						return lbl.Layout(gtx)
-					}),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						g.altH.Alignment = text.Middle
-						return g.altH.Layout(gtx)
-					},
-				),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						lbl := material.Label(g.th, unit.Sp(30), "oil temperature")
-						lbl.Alignment = text.Middle
-						return lbl.Layout(gtx)
-					}),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						g.oilTemp.Alignment = text.Middle
-						return g.oilTemp.Layout(gtx)
-					},
-				),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						lbl := material.Label(g.th, unit.Sp(30), "water temperature")
-						lbl.Alignment = text.Middle
-						return lbl.Layout(gtx)
-					}),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						g.waterTemp.Alignment = text.Middle
-						return g.waterTemp.Layout(gtx)
-					},
-				),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						lbl := material.Label(g.th, unit.Sp(30), "head temperature")
-						lbl.Alignment = text.Middle
-						return lbl.Layout(gtx)
-					}),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						g.headTemp.Alignment = text.Middle
-						return g.headTemp.Layout(gtx)
-					},
-				),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						lbl := material.Label(g.th, unit.Sp(30), "fuel")
-						lbl.Alignment = text.Middle
-						return lbl.Layout(gtx)
-					}),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						g.fuel.Alignment = text.Middle
-						return g.fuel.Layout(gtx)
-					},
-				),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						lbl := material.Label(g.th, unit.Sp(30), "throttle")
-						lbl.Alignment = text.Middle
-						return lbl.Layout(gtx)
-					}),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						g.throttle.Alignment = text.Middle
-						return g.throttle.Layout(gtx)
-					},
-				),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						lbl := material.Label(g.th, unit.Sp(30), "flaps")
-						lbl.Alignment = text.Middle
-						return lbl.Layout(gtx)
-					}),
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						g.flaps.Alignment = text.Middle
-						return g.flaps.Layout(gtx)
-					},
-				),
-
+				layout.Rigid(g.ias.Layout),
+				layout.Rigid(g.altH.Layout),
+				layout.Rigid(g.oilTemp.Layout),
+				layout.Rigid(g.waterTemp.Layout),
+				layout.Rigid(g.headTemp.Layout),
+				layout.Rigid(g.throttle.Layout),
+				layout.Rigid(g.flaps.Layout),
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
 						return rows.Layout(gtx, btn1, btn2)

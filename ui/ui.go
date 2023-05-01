@@ -6,8 +6,14 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/font/gofont"
+	"gioui.org/layout"
 	"gioui.org/widget/material"
 	"github.com/grafov/kiwi"
+)
+
+type (
+	C = layout.Context
+	D = layout.Dimensions
 )
 
 type gui struct {
