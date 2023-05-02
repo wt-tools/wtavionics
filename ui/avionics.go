@@ -52,18 +52,15 @@ func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *i
 				g.w.Invalidate()
 				l.Log("state", data)
 			case data := <-inds.Messages:
-				if data.OilTemperature < 0 {
-					data.OilTemperature = 0
+				if data.OilTemperature >= 0 {
+					g.oilTemp.V = strconv.FormatFloat(data.OilTemperature, 'f', precision, 64)
 				}
-				g.oilTemp.V = strconv.FormatFloat(data.OilTemperature, 'f', precision, 64)
-				if data.HeadTemperature < 0 {
-					data.HeadTemperature = 0
+				if data.HeadTemperature >= 0 {
+					g.headTemp.V = strconv.FormatFloat(data.HeadTemperature, 'f', precision, 64)
 				}
-				g.headTemp.V = strconv.FormatFloat(data.HeadTemperature, 'f', precision, 64)
-				if data.WaterTemperature < 0 {
-					data.WaterTemperature = 0
+				if data.WaterTemperature >= 0 {
+					g.waterTemp.V = strconv.FormatFloat(data.WaterTemperature, 'f', precision, 64)
 				}
-				g.waterTemp.V = strconv.FormatFloat(data.WaterTemperature, 'f', precision, 64)
 				g.fuel.V = strconv.FormatFloat(data.Fuel, 'f', precision, 64)
 				g.flaps.V = strconv.FormatFloat(data.Flaps, 'f', precision, 64)
 				g.craft.Text = data.Type
