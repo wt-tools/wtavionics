@@ -17,6 +17,8 @@ import (
 	"github.com/wt-tools/wtscope/input/state"
 )
 
+const noAircraft = "no aircraft selected"
+
 type avionicsDisplays struct {
 	ias          *basicDisplay
 	altH         *basicDisplay
@@ -33,15 +35,15 @@ type avionicsDisplays struct {
 const precision = 1 // numbers after comma for floating values
 func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *indicators.Service) {
 	l := g.log.New()
-	g.ias = newBasicDisplay(g.th, "speed", 300)
-	g.altH = newBasicDisplay(g.th, "altitude", 30)
-	g.oilTemp = newBasicDisplay(g.th, "oil temperature", 70)
-	g.waterTemp = newBasicDisplay(g.th, "water temperature", 70)
-	g.headTemp = newBasicDisplay(g.th, "head temperature", 70)
+	g.ias = newBasicDisplay(g.th, "speed", 330)
+	g.altH = newBasicDisplay(g.th, "altitude", 50)
+	g.oilTemp = newBasicDisplay(g.th, "oil temperature", 90)
+	g.waterTemp = newBasicDisplay(g.th, "water temperature", 90)
+	g.headTemp = newBasicDisplay(g.th, "head temperature", 90)
 	g.fuel = newBasicDisplay(g.th, "fuel", 50)
 	g.flaps = newBasicDisplay(g.th, "flaps", 50)
 	g.throttle = newBasicDisplay(g.th, "throttle", 50)
-	g.craft = material.Button(g.th, &g.btnClickArea, "aircraft")
+	g.craft = material.Button(g.th, &g.btnClickArea, noAircraft)
 	go func() {
 		for {
 			select {
@@ -82,7 +84,7 @@ func (g *gui) avionicsPanel() error {
 
 	btn2 := layout.Rigid(
 		func(gtx layout.Context) layout.Dimensions {
-			btn := material.Button(g.th, &g.btnClickArea, "hello world")
+			btn := material.Button(g.th, &g.btnClickArea, "dev preview")
 
 			return btn.Layout(gtx)
 		},
@@ -95,6 +97,7 @@ func (g *gui) avionicsPanel() error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 			area := clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops)
+			visible := !(g.craft.Text == noAircraft) || g.craft.Text == ""
 			for _, event := range gtx.Events(g.w) {
 				switch event := event.(type) {
 				case key.Event:
@@ -111,13 +114,13 @@ func (g *gui) avionicsPanel() error {
 				layout.Rigid(
 					layout.Spacer{Height: unit.Dp(25)}.Layout,
 				),
-				layout.Rigid(g.ias.Layout),
-				layout.Rigid(g.altH.Layout),
-				layout.Rigid(g.oilTemp.Layout),
-				layout.Rigid(g.waterTemp.Layout),
-				layout.Rigid(g.headTemp.Layout),
-				layout.Rigid(g.throttle.Layout),
-				layout.Rigid(g.flaps.Layout),
+				layout.Rigid(g.ias.Display(gtx, visible)),
+				layout.Rigid(g.altH.Display(gtx, visible)),
+				layout.Rigid(g.oilTemp.Display(gtx, visible)),
+				layout.Rigid(g.waterTemp.Display(gtx, visible)),
+				layout.Rigid(g.headTemp.Display(gtx, visible)),
+				layout.Rigid(g.throttle.Display(gtx, visible)),
+				layout.Rigid(g.flaps.Display(gtx, visible)),
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
 						return rows.Layout(gtx, btn1, btn2)
