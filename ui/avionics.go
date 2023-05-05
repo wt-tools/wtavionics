@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"gioui.org/app"
+	"gioui.org/font/gofont"
 	"gioui.org/io/key"
 	"gioui.org/io/system"
 	"gioui.org/layout"
@@ -37,10 +38,10 @@ type avionics struct {
 	log          *kiwi.Logger
 }
 
-func newAvionics(th *material.Theme, log *kiwi.Logger) *avionics {
+func newAvionics(log *kiwi.Logger) *avionics {
 	return &avionics{
 		w:   app.NewWindow(app.Title("WT Scope: Avionics")),
-		th:  th,
+		th:  material.NewTheme(gofont.Collection()),
 		log: log,
 	}
 }

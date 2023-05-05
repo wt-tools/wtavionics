@@ -5,9 +5,7 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/layout"
-	"gioui.org/widget/material"
 	"github.com/grafov/kiwi"
 )
 
@@ -17,19 +15,16 @@ type (
 )
 
 type gui struct {
-	th  *material.Theme
 	log *kiwi.Logger
 	av  *avionics
 	bl  *battleLog
 }
 
 func Init(_ context.Context, log *kiwi.Logger) *gui {
-	th := material.NewTheme(gofont.Collection())
 	return &gui{
-		th:  th,
 		log: log,
-		av:  newAvionics(th, log),
-		bl:  newBattleLog(th, log),
+		av:  newAvionics(log),
+		bl:  newBattleLog(log),
 	}
 }
 
