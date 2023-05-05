@@ -4,8 +4,9 @@ go 1.20
 
 require (
 	gioui.org v0.0.0-20230427133431-816bda7ac7bd
+	gioui.org/x v0.0.0-20230426160849-752f112c7a59
 	github.com/grafov/kiwi v0.5.2
-	github.com/wt-tools/wtscope v0.0.0-20230427191353-fa84acf008dd
+	github.com/wt-tools/wtscope v0.0.0-20230505180549-b8c4ef351109
 )
 
 require (

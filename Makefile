@@ -8,7 +8,6 @@ CLEANUP?=
 # Requires GNU grep
 APP:=$(shell grep -Po '^module\s+\K.*' go.mod)
 
-
 default: lint test
 
 -include doc.mk
@@ -34,8 +33,11 @@ test-race:
 generate:
 	go generate $(FLAGS) ./...
 
+tidy:
+	go mod tidy
+
 clean:
 	@echo $(CLEANUP)
 	$(foreach f,$(CLEANUP),rm -rf $(f);)
 
-.PHONY: build build-race build-all test test-race lint clean
+.PHONY: build build-race build-all test test-race tidy lint clean

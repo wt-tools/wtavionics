@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
-	"net/http"
 	"os"
 	"time"
 
 	"github.com/wt-tools/wtavionics/config"
 	"github.com/wt-tools/wtavionics/ui"
+	"github.com/wt-tools/wtscope/input/hudmsg"
 	"github.com/wt-tools/wtscope/input/indicators"
 	"github.com/wt-tools/wtscope/input/state"
+	"github.com/wt-tools/wtscope/net/dedup"
 	"github.com/wt-tools/wtscope/net/poll"
 
 	"github.com/grafov/kiwi"
@@ -23,14 +24,25 @@ func main() {
 	l.Log("status", "prepare avionics for start", "config", "xxx")
 	errch := make(chan error, 8) // XXX разделить по компонентам
 	go showErrors(l, errch)
-	defaultPolling := poll.New(http.DefaultClient, errch, 250*time.Millisecond, 4*time.Second)
-	stateSvc := state.New(conf, defaultPolling, errch)
-	indSvc := indicators.New(conf, defaultPolling, errch)
+	defaultPolling := poll.New(poll.SetLogger(errch),
+		poll.SetLoopDelay(250*time.Millisecond), poll.SetProblemDelay(4*time.Second))
 	go defaultPolling.Do()
-	go stateSvc.Grab(ctx)
-	go indSvc.Grab(ctx)
 	gui := ui.Init(ctx, l)
-	gui.UpdateAvionics(ctx, stateSvc, indSvc)
+
+	// TODO сделать сервисы входных данных отключаемыми в конфиге
+	{
+		stateSvc := state.New(conf, defaultPolling, errch)
+		go stateSvc.Grab(ctx)
+		indSvc := indicators.New(conf, defaultPolling, errch)
+		go indSvc.Grab(ctx)
+		gui.UpdateAvionics(ctx, stateSvc, indSvc)
+	}
+
+	{
+		battleSvc := hudmsg.New(conf, defaultPolling, dedup.New(), errch)
+		go battleSvc.Grab(ctx)
+		gui.UpdateBattleLog(ctx, battleSvc)
+	}
 	gui.Run(ctx)
 }
 

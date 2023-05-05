@@ -17,29 +17,37 @@ type (
 )
 
 type gui struct {
-	w   *app.Window
 	th  *material.Theme
 	log *kiwi.Logger
-	avionicsDisplays
+	av  *avionics
+	bl  *battleLog
 }
 
 func Init(_ context.Context, log *kiwi.Logger) *gui {
+	th := material.NewTheme(gofont.Collection())
 	return &gui{
-		w:   app.NewWindow(app.Title("WT Scope: Avionics")),
-		th:  material.NewTheme(gofont.Collection()),
+		th:  th,
 		log: log,
+		av:  newAvionics(th, log),
+		bl:  newBattleLog(th, log),
 	}
 }
 
 func (g *gui) Run(_ context.Context) {
 	l := g.log.New()
 	go func() {
-		err := g.avionicsPanel()
+		err := g.av.panel()
 		if err != nil {
-			l.Log("fatal", "can't run window", "error", err)
+			l.Log("fatal", "can't run avionics window", "error", err)
+			os.Exit(0)
 		}
-		l.Log("exit", "exit by escape")
-		os.Exit(0)
+	}()
+	go func() {
+		err := g.bl.panel()
+		if err != nil {
+			l.Log("fatal", "can't run battle log window", "error", err)
+			os.Exit(0)
+		}
 	}()
 	app.Main()
 }
