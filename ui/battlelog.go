@@ -82,7 +82,7 @@ func (b *battleLog) listLayout(gtx C) D {
 		default:
 			text = fmtAction(b.rows[i])
 		}
-		return material.Label(b.th, unit.Sp(20), text).Layout(gtx)
+		return material.Label(b.th, unit.Sp(26), text).Layout(gtx)
 	})
 }
 
