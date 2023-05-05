@@ -54,6 +54,7 @@ func (g *gui) UpdateBattleLog(ctx context.Context, gamelog *hudmsg.Service) {
 func (b *battleLog) panel() error {
 	var ops op.Ops
 	b.list.Axis = layout.Vertical
+	b.list.ScrollToEnd = true
 	for {
 		e := <-b.w.Events()
 		switch e := e.(type) {
@@ -86,5 +87,5 @@ func (b *battleLog) listLayout(gtx C) D {
 }
 
 func fmtAction(a action.GeneralAction) string {
-	return fmt.Sprintf("%16s  %s", a.At.Format("03:04:05"), a.Origin)
+	return fmt.Sprintf("%16s  %s", a.At, a.Origin)
 }

@@ -25,6 +25,10 @@ github.com/wt-tools/wtscope v0.0.0-20230505180353-24df2de92a73 h1:CK4h9SYAnkXOUP
 github.com/wt-tools/wtscope v0.0.0-20230505180353-24df2de92a73/go.mod h1:lBlwm305dht+1zVbnyBhp7A1ePsZnBrvXh4tojgPpls=
 github.com/wt-tools/wtscope v0.0.0-20230505180549-b8c4ef351109 h1:Q7s6aJ1vcpKngepYpmnppiAIt4MMq4mAEEVes9TmCNc=
 github.com/wt-tools/wtscope v0.0.0-20230505180549-b8c4ef351109/go.mod h1:lBlwm305dht+1zVbnyBhp7A1ePsZnBrvXh4tojgPpls=
+github.com/wt-tools/wtscope v0.0.0-20230505211624-8127a5ad78e5 h1:SxzqZKkDIAriWKMtEWeiQ6Qklh6uv3PZ/hZ+XuZ9Ag0=
+github.com/wt-tools/wtscope v0.0.0-20230505211624-8127a5ad78e5/go.mod h1:lBlwm305dht+1zVbnyBhp7A1ePsZnBrvXh4tojgPpls=
+github.com/wt-tools/wtscope v0.0.0-20230505211955-65a64afde888 h1:FvALqkY3L7DPRqfuCL3RLaNZZUrjAOklGnaNi6E9Qkg=
+github.com/wt-tools/wtscope v0.0.0-20230505211955-65a64afde888/go.mod h1:lBlwm305dht+1zVbnyBhp7A1ePsZnBrvXh4tojgPpls=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
