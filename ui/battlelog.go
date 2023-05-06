@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"gioui.org/app"
 	"gioui.org/font/gofont"
@@ -21,12 +22,13 @@ import (
 var headings []string
 
 type battleLog struct {
-	w    *app.Window
-	th   *material.Theme
-	log  *kiwi.Logger
-	grid component.GridState
-	list widget.List
-	rows []action.GeneralAction
+	w          *app.Window
+	th         *material.Theme
+	log        *kiwi.Logger
+	grid       component.GridState
+	list       widget.List
+	rows       []action.GeneralAction
+	latestTime time.Duration
 }
 
 func newBattleLog(log *kiwi.Logger) *battleLog {
@@ -43,6 +45,10 @@ func (g *gui) UpdateBattleLog(ctx context.Context, gamelog *hudmsg.Service) {
 		for {
 			select {
 			case data := <-gamelog.Messages:
+				if len(g.bl.rows) > 0 && g.bl.latestTime > data.At {
+					g.bl.rows = nil
+				}
+				g.bl.latestTime = data.At
 				g.bl.rows = append(g.bl.rows, data)
 				g.bl.w.Invalidate()
 				l.Log("battle log", data)
