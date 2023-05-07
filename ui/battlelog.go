@@ -79,17 +79,92 @@ func (b *battleLog) panel() error {
 
 func (b *battleLog) listLayout(gtx C) D {
 	return material.List(b.th, &b.list).Layout(gtx, len(b.rows), func(gtx layout.Context, i int) layout.Dimensions {
-		var text string
+		var (
+			text string
+			act  row
+		)
 		switch {
 		case len(b.rows) == 0:
 			text = "no battle log yet"
-		case i > len(b.rows):
-			text = fmtAction(b.rows[len(b.rows)-1])
+			return material.Label(b.th, unit.Sp(26), text).Layout(gtx)
+		case i > len(b.rows): // TODO broken case, handle this in other way
+			// text = fmtAction(b.rows[len(b.rows)-1])
+			act = row(b.rows[len(b.rows)-1])
 		default:
-			text = fmtAction(b.rows[i])
+			// text = fmtAction(b.rows[i])
+			act = row(b.rows[i])
 		}
-		return material.Label(b.th, unit.Sp(26), text).Layout(gtx)
+		return act.rowDisplay(gtx, b.th)
 	})
+}
+
+type row action.GeneralAction
+
+func (r row) rowDisplay(gtx C, th *material.Theme) D {
+	return layout.UniformInset(10).Layout(gtx,
+		func(gtx C) D {
+			return layout.Flex{
+				Alignment: layout.Start,
+				Axis:      layout.Horizontal,
+				Spacing:   layout.SpaceEvenly,
+			}.Layout(gtx,
+				// Timestamp
+				layout.Rigid(
+					func(gtx C) D {
+						return layout.UniformInset(10).Layout(gtx,
+							material.Label(th, unit.Sp(14), r.At.String()).Layout,
+						)
+					},
+				),
+				layout.Flexed(0.9,
+					func(gtx C) D {
+						return layout.Flex{
+							Axis: layout.Vertical,
+						}.Layout(gtx,
+							// Raw log row
+							layout.Rigid(material.Label(th, unit.Sp(14), r.Origin).Layout),
+							// Player - action - player info
+							layout.Rigid(
+								func(gtx C) D {
+									return layout.Flex{
+										Alignment: layout.Middle,
+										Axis:      layout.Horizontal,
+										Spacing:   layout.SpaceEvenly,
+									}.Layout(gtx,
+										// Initiator player
+										layout.Flexed(0.2,
+											func(gtx C) D {
+												return layout.Flex{
+													Alignment: layout.Middle,
+													Axis:      layout.Vertical,
+													Spacing:   layout.SpaceEnd,
+												}.Layout(gtx,
+													layout.Rigid(material.Label(th, unit.Sp(26), r.Damage.Vehicle.Name).Layout),
+													layout.Rigid(material.Label(th, unit.Sp(20), fmt.Sprintf("%s %s", r.Damage.TargetPlayer.Clan, r.Damage.TargetPlayer.Name)).Layout),
+												)
+											},
+										),
+										// Action
+										//		layout.Inset{0, 0, 0, 0}.Layout(gtx,
+										layout.Flexed(0.5,
+											material.Label(th, unit.Sp(28), r.Damage.ActionRaw).Layout),
+										// Target player
+										layout.Flexed(0.2,
+											func(gtx C) D {
+												return layout.Flex{
+													Alignment: layout.Middle,
+													Axis:      layout.Vertical,
+													Spacing:   layout.SpaceStart,
+												}.Layout(gtx,
+													layout.Rigid(material.Label(th, unit.Sp(26), r.Damage.TargetVehicle.Name).Layout),
+													layout.Rigid(material.Label(th, unit.Sp(20), fmt.Sprintf("%s %s", r.Damage.TargetPlayer.Clan, r.Damage.TargetPlayer.Name)).Layout),
+												)
+											},
+										),
+									)
+								}))
+					}))
+		})
 }
 
 func fmtAction(a action.GeneralAction) string {

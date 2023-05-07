@@ -6,7 +6,7 @@ require (
 	gioui.org v0.0.0-20230427133431-816bda7ac7bd
 	gioui.org/x v0.0.0-20230426160849-752f112c7a59
 	github.com/grafov/kiwi v0.5.2
-	github.com/wt-tools/wtscope v0.0.0-20230505211955-65a64afde888
+	github.com/wt-tools/wtscope v0.0.0-20230507172012-f8c2ea8cd751
 )
 
 require (
