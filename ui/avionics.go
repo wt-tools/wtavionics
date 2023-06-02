@@ -24,7 +24,7 @@ const noAircraft = "wait for flight"
 type avionics struct {
 	w            *app.Window
 	th           *material.Theme
-	compass      *intBasicDisplay
+	compass      *compassDisplay
 	ias          *intBasicDisplay
 	iasMph       *intBasicDisplay
 	iasKnot      *floatBasicDisplay
@@ -60,7 +60,7 @@ const (
 
 func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *indicators.Service) {
 	l := g.log.New()
-	g.av.compass = newIntBasicDisplay(g.av.th, "compass", 90)
+	g.av.compass = newCompassDisplay(g.av.th)
 	g.av.ias = newIntBasicDisplay(g.av.th, "speed, KM/h", 320)
 	g.av.iasMph = newIntBasicDisplay(g.av.th, "speed, MPH", 120)
 	g.av.iasKnot = newFloatBasicDisplay(g.av.th, "speed, Knots", 120)
