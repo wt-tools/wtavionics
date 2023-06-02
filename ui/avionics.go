@@ -179,15 +179,16 @@ func (a *avionics) panel() error {
 				}),
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return layout.Flex{}.Layout(gtx,
-						layout.Flexed(0.33, a.oilTemp.Display(gtx, visible)),
-						layout.Flexed(0.33, a.waterTemp.Display(gtx, visible)),
-						layout.Flexed(0.33, a.headTemp.Display(gtx, visible)),
+						layout.Flexed(0.333, a.oilTemp.Display(gtx, visible)),
+						layout.Flexed(0.333, a.waterTemp.Display(gtx, visible)),
+						layout.Flexed(0.333, a.headTemp.Display(gtx, visible)),
 					)
 				}),
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return layout.Flex{}.Layout(gtx,
-						layout.Flexed(0.5, a.throttle.Display(gtx, visible)),
-						layout.Flexed(0.5, a.mixture.Display(gtx, visible)),
+						layout.Flexed(0.333, a.throttle.Display(gtx, visible)),
+						layout.Flexed(0.333, a.mixture.Display(gtx, visible)),
+						layout.Flexed(0.333, a.fuel.Display(gtx, visible)),
 					)
 				}),
 				layout.Rigid(a.flaps.Display(gtx, visible)),
