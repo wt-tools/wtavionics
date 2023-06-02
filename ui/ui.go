@@ -7,6 +7,7 @@ import (
 	"gioui.org/app"
 	"gioui.org/layout"
 	"github.com/grafov/kiwi"
+	"golang.org/x/exp/constraints"
 )
 
 type (
@@ -36,4 +37,29 @@ func (g *gui) Run(_ context.Context) {
 		}
 	}()
 	app.Main()
+}
+
+type director[N constraints.Ordered] struct {
+	old, oldest N
+}
+
+func (d *director[N]) set(v N) string {
+	var direction string
+	if v > d.old {
+		if d.old >= d.oldest {
+			direction = "↑"
+		} else {
+			direction = ""
+		}
+	}
+	if v < d.old {
+		if d.old <= d.oldest {
+			direction = "↓"
+		} else {
+			direction = ""
+		}
+	}
+	d.oldest = d.old
+	d.old = v
+	return direction
 }

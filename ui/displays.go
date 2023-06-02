@@ -2,6 +2,7 @@ package ui
 
 import (
 	"image/color"
+	"strconv"
 
 	"gioui.org/layout"
 	"gioui.org/text"
@@ -9,22 +10,56 @@ import (
 	"gioui.org/widget/material"
 )
 
-type basicDisplay struct {
-	V      string
-	title  string
-	valw   material.LabelStyle
-	theme  *material.Theme
-	height int
-	color  color.NRGBA
-}
-
-func newBasicDisplay(theme *material.Theme, title string, height int) *basicDisplay {
-	return &basicDisplay{
+func newIntBasicDisplay(theme *material.Theme, title string, height int) *intBasicDisplay {
+	d := basicDisplay{
 		title:  title,
+		label:  title,
 		valw:   material.Label(theme, unit.Sp(height), "0"),
 		theme:  theme,
 		height: height,
 	}
+	return &intBasicDisplay{basicDisplay: d}
+}
+
+func newFloatBasicDisplay(theme *material.Theme, title string, height int) *floatBasicDisplay {
+	d := basicDisplay{
+		title:  title,
+		label:  title,
+		valw:   material.Label(theme, unit.Sp(height), "0"),
+		theme:  theme,
+		height: height,
+	}
+	return &floatBasicDisplay{basicDisplay: d}
+}
+
+type intBasicDisplay struct {
+	basicDisplay
+	director[int]
+}
+
+func (i *intBasicDisplay) Set(d int) {
+	i.V = strconv.Itoa(d)
+	i.label = i.title + " " + i.set(d)
+}
+
+type floatBasicDisplay struct {
+	basicDisplay
+	director[float64]
+}
+
+func (f *floatBasicDisplay) Set(d float64) {
+	f.V = strconv.FormatFloat(d, 'f', precision, 64)
+	f.label = f.title + " " + f.set(d)
+}
+
+type basicDisplay struct {
+	V      string
+	title  string
+	label  string
+	valw   material.LabelStyle
+	theme  *material.Theme
+	height int
+	color  color.NRGBA
 }
 
 func (b *basicDisplay) Display(gtx C, visible bool) func(C) D {
@@ -43,7 +78,7 @@ func (b *basicDisplay) Display(gtx C, visible bool) func(C) D {
 		}.Layout(gtx,
 			layout.Rigid(
 				func(gtx layout.Context) layout.Dimensions {
-					lbl := material.Label(b.theme, unit.Sp(30), b.title)
+					lbl := material.Label(b.theme, unit.Sp(30), b.label)
 					lbl.Color = b.color
 					lbl.Alignment = text.Middle
 					return lbl.Layout(gtx)

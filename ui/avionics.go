@@ -3,7 +3,6 @@ package ui
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"gioui.org/app"
 	"gioui.org/font/gofont"
@@ -25,14 +24,14 @@ const noAircraft = "wait for flight"
 type avionics struct {
 	w            *app.Window
 	th           *material.Theme
-	ias          *basicDisplay
-	altH         *basicDisplay
-	oilTemp      *basicDisplay
-	headTemp     *basicDisplay
-	waterTemp    *basicDisplay
-	fuel         *basicDisplay
-	flaps        *basicDisplay
-	throttle     *basicDisplay
+	ias          *intBasicDisplay
+	altH         *intBasicDisplay
+	oilTemp      *floatBasicDisplay
+	headTemp     *floatBasicDisplay
+	waterTemp    *floatBasicDisplay
+	fuel         *floatBasicDisplay
+	flaps        *floatBasicDisplay
+	throttle     *intBasicDisplay
 	craft        material.ButtonStyle
 	btnClickArea widget.Clickable
 	log          *kiwi.Logger
@@ -49,36 +48,36 @@ func newAvionics(log *kiwi.Logger) *avionics {
 const precision = 1 // numbers after comma for floating values
 func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *indicators.Service) {
 	l := g.log.New()
-	g.av.ias = newBasicDisplay(g.av.th, "speed", 330)
-	g.av.altH = newBasicDisplay(g.av.th, "altitude", 50)
-	g.av.oilTemp = newBasicDisplay(g.av.th, "oil temperature", 90)
-	g.av.waterTemp = newBasicDisplay(g.av.th, "water temperature", 90)
-	g.av.headTemp = newBasicDisplay(g.av.th, "head temperature", 90)
-	g.av.fuel = newBasicDisplay(g.av.th, "fuel", 50)
-	g.av.flaps = newBasicDisplay(g.av.th, "flaps", 50)
-	g.av.throttle = newBasicDisplay(g.av.th, "throttle", 50)
+	g.av.ias = newIntBasicDisplay(g.av.th, "speed", 350)
+	g.av.altH = newIntBasicDisplay(g.av.th, "altitude", 90)
+	g.av.oilTemp = newFloatBasicDisplay(g.av.th, "oil temperature", 120)
+	g.av.waterTemp = newFloatBasicDisplay(g.av.th, "water temperature", 120)
+	g.av.headTemp = newFloatBasicDisplay(g.av.th, "head temperature", 120)
+	g.av.fuel = newFloatBasicDisplay(g.av.th, "fuel", 60)
+	g.av.flaps = newFloatBasicDisplay(g.av.th, "flaps", 60)
+	g.av.throttle = newIntBasicDisplay(g.av.th, "throttle", 60)
 	g.av.craft = material.Button(g.av.th, &g.av.btnClickArea, noAircraft)
 	go func() {
 		for {
 			select {
 			case data := <-states.Messages:
-				g.av.altH.V = strconv.Itoa(data.GetInt(state.HM))
-				g.av.ias.V = strconv.Itoa(data.GetInt(state.IASKmH))
-				g.av.throttle.V = strconv.Itoa(data.GetInt(state.Throttle1))
+				g.av.altH.Set(data.GetInt(state.HM))
+				g.av.ias.Set(data.GetInt(state.IASKmH))
+				g.av.throttle.Set(data.GetInt(state.Throttle1))
 				g.av.w.Invalidate()
 				l.Log("state", data)
 			case data := <-inds.Messages:
 				if data.OilTemperature >= 0 {
-					g.av.oilTemp.V = strconv.FormatFloat(data.OilTemperature, 'f', precision, 64)
+					g.av.oilTemp.Set(data.OilTemperature)
 				}
 				if data.HeadTemperature >= 0 {
-					g.av.headTemp.V = strconv.FormatFloat(data.HeadTemperature, 'f', precision, 64)
+					g.av.headTemp.Set(data.HeadTemperature)
 				}
 				if data.WaterTemperature >= 0 {
-					g.av.waterTemp.V = strconv.FormatFloat(data.WaterTemperature, 'f', precision, 64)
+					g.av.waterTemp.Set(data.WaterTemperature)
 				}
-				g.av.fuel.V = strconv.FormatFloat(data.Fuel, 'f', precision, 64)
-				g.av.flaps.V = strconv.FormatFloat(data.Flaps, 'f', precision, 64)
+				g.av.fuel.Set(data.Fuel)
+				g.av.flaps.Set(data.Flaps)
 				g.av.craft.Text = data.Type
 				g.av.w.Invalidate()
 				l.Log("indicator", data)
@@ -87,6 +86,7 @@ func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *i
 	}()
 }
 
+// TODO split to windows
 func (a *avionics) panel() error {
 	l := a.log.New()
 	var ops op.Ops
@@ -130,9 +130,13 @@ func (a *avionics) panel() error {
 				),
 				layout.Rigid(a.ias.Display(gtx, visible)),
 				layout.Rigid(a.altH.Display(gtx, visible)),
-				layout.Rigid(a.oilTemp.Display(gtx, visible)),
-				layout.Rigid(a.waterTemp.Display(gtx, visible)),
-				layout.Rigid(a.headTemp.Display(gtx, visible)),
+				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+					return layout.Flex{}.Layout(gtx,
+						layout.Flexed(0.33, a.oilTemp.Display(gtx, visible)),
+						layout.Flexed(0.33, a.waterTemp.Display(gtx, visible)),
+						layout.Flexed(0.33, a.headTemp.Display(gtx, visible)),
+					)
+				}),
 				layout.Rigid(a.throttle.Display(gtx, visible)),
 				layout.Rigid(a.flaps.Display(gtx, visible)),
 				layout.Rigid(
