@@ -3,11 +3,11 @@ package ui
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
+	"gioui.org/io/event"
 	"gioui.org/io/key"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -45,9 +45,11 @@ type avionics struct {
 }
 
 func newAvionics(log *kiwi.Logger) *avionics {
+	var w app.Window
+	w.Option(app.Title("WT Scope: Avionics"))
 	return &avionics{
-		w:   app.NewWindow(app.Title("WT Scope: Avionics")),
-		th:  material.NewTheme(gofont.Collection()),
+		w:   &w,
+		th:  material.NewTheme(),
 		log: log,
 	}
 }
@@ -119,9 +121,39 @@ func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *i
 	}()
 }
 
+func (a *avionics) exitOnEsc(gtx layout.Context, tag bool) {
+	event.Op(gtx.Ops, tag)
+	// New event reading
+	for {
+		event, ok := gtx.Event(
+			key.FocusFilter{
+				Target: tag,
+			},
+			key.Filter{
+				Focus: tag,
+				Name:  key.NameEscape,
+			},
+			key.Filter{
+				Focus: tag,
+				Name:  key.NameEnter,
+			},
+		)
+		if !ok {
+			break
+		}
+		ev, ok := event.(key.Event)
+		if !ok {
+			continue
+		}
+		if ev.Name == key.NameEscape {
+			os.Exit(0)
+		}
+	}
+}
+
 // TODO split to windows
 func (a *avionics) panel() error {
-	l := a.log.New()
+	// l := a.log.New()
 	var ops op.Ops
 	btn1 := layout.Rigid(
 		func(gtx layout.Context) layout.Dimensions {
@@ -131,29 +163,20 @@ func (a *avionics) panel() error {
 
 	btn2 := layout.Rigid(
 		func(gtx layout.Context) layout.Dimensions {
-			btn := material.Button(a.th, &a.btnClickArea, "dev preview")
-
-			return btn.Layout(gtx)
+			return material.Button(a.th, &a.btnClickArea, "dev preview").Layout(gtx)
 		},
 	)
 
 	rows := layout.Flex{Axis: layout.Vertical, Spacing: layout.SpaceEvenly}
 
-	for e := range a.w.Events() {
-		switch e := e.(type) {
-		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+	var exitTag bool
+	for {
+		switch e := a.w.Event().(type) {
+		case app.FrameEvent:
+			gtx := app.NewContext(&ops, e)
 			area := clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops)
 			visible := !(a.craft.Text == noAircraft) || a.craft.Text == ""
-			for _, event := range gtx.Events(a.w) {
-				switch event := event.(type) {
-				case key.Event:
-					l.Log("exit", "by escape")
-					if event.Name == key.NameEscape {
-						return nil
-					}
-				}
-			}
+			a.exitOnEsc(gtx, exitTag)
 			layout.Flex{
 				Axis:    layout.Vertical,
 				Spacing: layout.SpaceEnd,
@@ -199,13 +222,11 @@ func (a *avionics) panel() error {
 					},
 				),
 			)
-			if a.btnClickArea.Clicked() {
+			if a.btnClickArea.Clicked(gtx) {
 				fmt.Println("button was clicked")
 			}
 			area.Pop()
 			e.Frame(gtx.Ops)
 		}
 	}
-
-	return nil
 }
