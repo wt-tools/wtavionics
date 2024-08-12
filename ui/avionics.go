@@ -11,6 +11,7 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
+	"gioui.org/op/paint"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -121,6 +122,7 @@ func (g *gui) UpdateAvionics(ctx context.Context, states *state.Service, inds *i
 	}()
 }
 
+// XXX doesn't work yet :\
 func (a *avionics) exitOnEsc(gtx layout.Context, tag bool) {
 	event.Op(gtx.Ops, tag)
 	// New event reading
@@ -168,12 +170,12 @@ func (a *avionics) panel() error {
 	)
 
 	rows := layout.Flex{Axis: layout.Vertical, Spacing: layout.SpaceEvenly}
-
 	var exitTag bool
 	for {
 		switch e := a.w.Event().(type) {
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
+			paint.FillShape(gtx.Ops, bgColor, clip.Rect{Max: gtx.Constraints.Max}.Op())
 			area := clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops)
 			visible := !(a.craft.Text == noAircraft) || a.craft.Text == ""
 			a.exitOnEsc(gtx, exitTag)
