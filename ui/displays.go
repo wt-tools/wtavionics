@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"strconv"
 
@@ -48,7 +49,7 @@ func (c *compassDisplay) Set(d int) {
 	}
 }
 
-func (c *compassDisplay) Display(gtx C, visible bool) func(C) D {
+func (c *compassDisplay) Display(gtx C, visible bool, size image.Point) func(C) D {
 	switch {
 	case !visible:
 		c.color = color.NRGBA{0, 0, 0, 0}
@@ -64,7 +65,7 @@ func (c *compassDisplay) Display(gtx C, visible bool) func(C) D {
 		}.Layout(gtx,
 			layout.Rigid(
 				func(gtx layout.Context) layout.Dimensions {
-					lbl := material.Label(c.theme, unit.Sp(60), c.label)
+					lbl := material.Label(c.theme, unit.Sp(dp(size)), c.label)
 					lbl.Color = c.color
 					lbl.Alignment = text.Middle
 					return lbl.Layout(gtx)
@@ -125,7 +126,7 @@ type basicDisplay struct {
 	color  color.NRGBA
 }
 
-func (b *basicDisplay) Display(gtx C, visible bool) func(C) D {
+func (b *basicDisplay) Display(gtx C, visible bool, size image.Point) func(C) D {
 	switch {
 	case !visible:
 		b.color = color.NRGBA{0, 0, 0, 0}
@@ -141,7 +142,7 @@ func (b *basicDisplay) Display(gtx C, visible bool) func(C) D {
 		}.Layout(gtx,
 			layout.Rigid(
 				func(gtx layout.Context) layout.Dimensions {
-					lbl := material.Label(b.theme, unit.Sp(30), b.label)
+					lbl := material.Label(b.theme, dp(size), b.label)
 					lbl.Color = b.color
 					lbl.Alignment = text.Middle
 					return lbl.Layout(gtx)
@@ -151,6 +152,7 @@ func (b *basicDisplay) Display(gtx C, visible bool) func(C) D {
 					b.valw.Text = b.V
 					b.valw.Color = b.color
 					b.valw.Alignment = text.Middle
+					b.valw.TextSize = height(size, b.height)
 					return b.valw.Layout(gtx)
 				},
 			),

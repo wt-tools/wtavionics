@@ -177,6 +177,7 @@ func (a *avionics) panel() error {
 			gtx := app.NewContext(&ops, e)
 			paint.FillShape(gtx.Ops, bgColor, clip.Rect{Max: gtx.Constraints.Max}.Op())
 			area := clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops)
+			size := e.Size
 			visible := !(a.craft.Text == noAircraft) || a.craft.Text == ""
 			a.exitOnEsc(gtx, exitTag)
 			layout.Flex{
@@ -186,38 +187,38 @@ func (a *avionics) panel() error {
 				layout.Rigid(
 					layout.Spacer{Height: unit.Dp(25)}.Layout,
 				),
-				layout.Rigid(a.compass.Display(gtx, visible)),
+				layout.Rigid(a.compass.Display(gtx, visible, size)),
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return layout.Flex{
 						Spacing: layout.SpaceEnd,
 					}.Layout(gtx,
-						layout.Flexed(0.25, a.iasMph.Display(gtx, visible)),
-						layout.Flexed(0.5, a.ias.Display(gtx, visible)),
-						layout.Flexed(0.25, a.iasKnot.Display(gtx, visible)),
+						layout.Flexed(0.25, a.iasMph.Display(gtx, visible, size)),
+						layout.Flexed(0.5, a.ias.Display(gtx, visible, size)),
+						layout.Flexed(0.25, a.iasKnot.Display(gtx, visible, size)),
 					)
 				}),
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return layout.Flex{}.Layout(gtx,
-						layout.Flexed(0.5, a.altH.Display(gtx, visible)),
-						layout.Flexed(0.5, a.vsi.Display(gtx, visible)),
+						layout.Flexed(0.5, a.altH.Display(gtx, visible, size)),
+						layout.Flexed(0.5, a.vsi.Display(gtx, visible, size)),
 					)
 				}),
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return layout.Flex{}.Layout(gtx,
-						layout.Flexed(0.333, a.oilTemp.Display(gtx, visible)),
-						layout.Flexed(0.333, a.waterTemp.Display(gtx, visible)),
-						layout.Flexed(0.333, a.headTemp.Display(gtx, visible)),
+						layout.Flexed(0.333, a.oilTemp.Display(gtx, visible, size)),
+						layout.Flexed(0.333, a.waterTemp.Display(gtx, visible, size)),
+						layout.Flexed(0.333, a.headTemp.Display(gtx, visible, size)),
 					)
 				}),
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return layout.Flex{}.Layout(gtx,
-						layout.Flexed(0.333, a.throttle.Display(gtx, visible)),
-						layout.Flexed(0.333, a.mixture.Display(gtx, visible)),
-						layout.Flexed(0.333, a.fuel.Display(gtx, visible)),
+						layout.Flexed(0.333, a.throttle.Display(gtx, visible, size)),
+						layout.Flexed(0.333, a.mixture.Display(gtx, visible, size)),
+						layout.Flexed(0.333, a.fuel.Display(gtx, visible, size)),
 					)
 				}),
-				layout.Rigid(a.flaps.Display(gtx, visible)),
-				layout.Rigid(a.gears.Display(gtx, visible)),
+				layout.Rigid(a.flaps.Display(gtx, visible, size)),
+				layout.Rigid(a.gears.Display(gtx, visible, size)),
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
 						return rows.Layout(gtx, btn1, btn2)
